@@ -14,12 +14,14 @@ class Counter
     public function render(): string
     {
         return <<<'HTML'
+        <div class="grid-container">
             <div class="counter">
                 <div class="wrapper">
                     <span>{{ $count }}</span>
                     <button wire:click="increment">+</button>
                 </div>
             </div>
+        </div>
         HTML;
     }
 }

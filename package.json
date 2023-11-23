@@ -6,8 +6,13 @@
         "build": "vite build"
     },
     "devDependencies": {
-        "axios": "^1.6.1",
+        "axios": "^1.6.2",
         "laravel-vite-plugin": "^0.8.0",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "alpinejs": "^3.13.3",
+        "@alpinejs/morph": "^3.13.3",
+        "sass": "^1.69.5"
     }
 }
