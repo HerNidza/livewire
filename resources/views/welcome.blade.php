@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{{ Vite::asset('resources/css/app.css') }}">
-</head>
-<body>
+<x-front-layout>
+    <div x-data="{ open: false }">
+        <button @click="open = true">Expand</button>
+
+        <span x-show="open">
+            Content...
+        </span>
+    </div>
+
     @livewire(\App\Livewire\Counter::class)
-</body>
-</html>
+</x-front-layout>
