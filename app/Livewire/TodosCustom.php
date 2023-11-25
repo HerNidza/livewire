@@ -2,9 +2,7 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-
-class Todos extends Component
+class TodosCustom
 {
     public $draft = 'Some todos...';
 
