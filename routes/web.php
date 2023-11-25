@@ -17,6 +17,10 @@ Route::post('/livewire', function (Request $request) {
         (new Livewire())->callMethod($component, $method);
     }
 
+    if ([$property, $value] = $request->updateProperty) {
+        (new Livewire())->updateProperty($component, $property, $value);
+    }
+
     [$html, $snapshot] = (new Livewire())->toSnapshot($component);
 
     return [

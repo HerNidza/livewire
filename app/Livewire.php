@@ -2,7 +2,9 @@
 
 namespace App;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -14,6 +16,10 @@ class Livewire
     function initialRender($class): string
     {
         $component = new $class;
+
+        if (method_exists($component, 'mount')) {
+            $component->mount();
+        }
 
         [$html, $snapshot] = $this->toSnapshot($component);
 
@@ -49,38 +55,101 @@ class Livewire
         }
     }
 
-    public function fromSnapshot (mixed $snapshot)
-    {
-        $class = $snapshot['class'];
-        $data = $snapshot['data'];
-
-        $component = new $class;
-
-        $this->setProperties($component, $data);
-
-        return $component;
-    }
-
-    public function toSnapshot ($component)
-    {
+    function toSnapshot($component) {
         $html = Blade::render(
             $component->render(),
             $properties = $this->getProperties($component)
         );
 
+        [$data, $meta] = $this->dehydrateProperties($properties);
+
         $snapshot = [
             'class' => get_class($component),
-            'data' => $properties
-        ];
+            'data' => $data,
+            'meta' => $meta,
 
-        return [
-            $html,
-            $snapshot
         ];
+        $snapshot['checksum'] = $this->generateChecksum($snapshot);
+
+        return [$html, $snapshot];
     }
 
-    public function callMethod ($component, $method)
+    public function generateChecksum ($snapshot)
+    {
+        return md5(json_encode($snapshot));
+    }
+
+    function dehydrateProperties($properties) {
+        $data = $meta = [];
+
+        foreach ($properties as $key => $value) {
+            if ($value instanceof Collection) {
+                $value = $value->toArray();
+                $meta[$key] = 'collection';
+            }
+
+            $data[$key] = $value;
+        }
+
+        return [$data, $meta];
+    }
+
+    function fromSnapshot($snapshot) {
+
+        $this->verifyChecksum($snapshot);
+
+        $class = $snapshot['class'];
+        $data = $snapshot['data'];
+        $meta = $snapshot['meta'];
+
+        $component = new $class;
+
+        $properties = $this->hydrateProperties($data, $meta);
+
+        $this->setProperties($component, $properties);
+
+        return $component;
+    }
+
+    public function verifyChecksum($snapshot)
+    {
+        $checksum = $snapshot['checksum'];
+        unset($snapshot['checksum']);
+
+        if ($checksum != $this->generateChecksum($snapshot)) {
+            throw new \Exception('Hey, stop hacking me!');
+        }
+    }
+
+    function hydrateProperties($data, $meta) {
+        $properties = [];
+
+        foreach ($data as $key => $value) {
+            if (isset($meta[$key]) && $meta[$key] === 'collection') {
+                $value = collect($value);
+            }
+
+            $properties[$key] = $value;
+        }
+
+        return $properties;
+    }
+
+
+    public function callMethod ($component, $method): void
     {
         $component->{$method}();
     }
+
+    public function updateProperty ($component, $property, $value): void
+    {
+        $component->{$property} = $value;
+
+        $updatedHook = 'updated' . Str::title($property);
+
+        if (method_exists($component, $updatedHook)) {
+            $component->{$updatedHook}();
+        }
+    }
+
 }
