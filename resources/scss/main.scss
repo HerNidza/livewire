@@ -34,4 +34,38 @@
     }
 }
 
+.todo__flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 50svh;
+    .todos {
+        display: grid;
+        column-gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
 
+        input {
+            border: 1px solid blue;
+            border-radius: 30px;
+            width: 200px;
+            height: 35px;
+        }
+
+        button {
+            background: black;
+            color: white;
+            font-size: 15px;
+            border: 1px solid black;
+            border-radius: 20px;
+            width: 100px;
+        }
+        ul {
+            li {
+                font-size: 25px;
+                font-weight: 600;
+            }
+        }
+    }
+}

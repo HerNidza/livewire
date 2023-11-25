@@ -6,8 +6,12 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 
 
+Route::get('/custom-livewire', function () {
+    return view('custom-livewire');
+});
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('livewire');
 });
 
 Route::post('/livewire', function (Request $request) {
@@ -15,6 +19,10 @@ Route::post('/livewire', function (Request $request) {
 
     if ($method = $request->callMethod) {
         (new Livewire())->callMethod($component, $method);
+    }
+
+    if ([$property, $value] = $request->updateProperty) {
+        (new Livewire())->updateProperty($component, $property, $value);
     }
 
     [$html, $snapshot] = (new Livewire())->toSnapshot($component);
@@ -25,7 +33,7 @@ Route::post('/livewire', function (Request $request) {
     ];
 });
 
-Blade::directive('livewire', function ($expression) {
+Blade::directive('customLivewire', function ($expression) {
 
     return "<?php echo (new \App\Livewire())->initialRender({$expression}) ?>";
 });
